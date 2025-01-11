@@ -1,6 +1,6 @@
-
 import pandas as pd
 import sys
+import os
 
 try:
     from fpdf import FPDF
@@ -87,11 +87,34 @@ def generate_pdf_report(analysis, output_file):
     except Exception as e:
         print(f"Failed to save PDF report: {e}")
 
+def get_unique_output_filename(base_file):
+    """
+    Generates a unique output filename by checking if the file exists and adding an index if necessary.
+
+    Args:
+        base_file (str): The base filename to start from.
+
+    Returns:
+        str: The unique output filename.
+    """
+    if not os.path.exists(base_file):
+        return base_file
+    else:
+        index = 1
+        while True:
+            new_file = f"{base_file.rsplit('.', 1)[0]}_{index}.pdf"
+            if not os.path.exists(new_file):
+                return new_file
+            index += 1
+
 if __name__ == "__main__":
     input_file = "sample_data.csv"  # Change to the correct file path
     output_file = "report/data_analysis_report.pdf"
 
+    # Generate a unique output file name
+    unique_output_file = get_unique_output_filename(output_file)
+
     data = read_data(input_file)
     if data is not None:
         analysis = analyze_data(data)
-        generate_pdf_report(analysis, output_file)
+        generate_pdf_report(analysis, unique_output_file)
